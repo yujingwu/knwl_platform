@@ -2,6 +2,8 @@
 
 ## Local setup
 1) Create and activate a virtualenv
+   - `python3 -m venv knwl_pf`
+   - `source knwl_pf/bin/activate`
 2) Install dependencies
    - `pip install -r requirements.txt`
 3) Set `API_KEYS_JSON`

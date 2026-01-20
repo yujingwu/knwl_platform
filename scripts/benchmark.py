@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import random
 import statistics
@@ -10,15 +11,26 @@ from app.core import config
 from app.db import repo
 from app.main import create_app
 
-
 def _random_text(words, count):
     return " ".join(random.choice(words) for _ in range(count))
 
 
 def _ensure_api_keys(api_key: str, tenant_id: str) -> None:
-    if os.getenv("API_KEYS_JSON"):
+    raw = os.getenv("API_KEYS_JSON")
+    if not raw:
+        os.environ["API_KEYS_JSON"] = f'{{"{api_key}":["{tenant_id}"]}}'
         return
-    os.environ["API_KEYS_JSON"] = f'{{"{api_key}":["{tenant_id}"]}}'
+    try:
+        parsed = json.loads(raw)
+        if not isinstance(parsed, dict):
+            raise ValueError("API_KEYS_JSON must be an object")
+    except Exception:
+        parsed = {}
+    tenants = parsed.get(api_key, [])
+    if tenant_id not in tenants:
+        tenants = list({*tenants, tenant_id})
+    parsed[api_key] = tenants
+    os.environ["API_KEYS_JSON"] = json.dumps(parsed)
 
 
 def main() -> None:

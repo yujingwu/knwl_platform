@@ -1,1 +1,18 @@
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+knwl_pf/
+
+# Cursor/Editor
+.cursor/
+.DS_Store
+
+# Local runtime data
+data/

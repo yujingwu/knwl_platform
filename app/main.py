@@ -1,7 +1,9 @@
+import os
 import threading
 import time
 import uuid
-from typing import Optional
+from contextlib import asynccontextmanager
+from typing import AsyncIterator, Optional
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -30,7 +32,12 @@ def create_app() -> FastAPI:
     settings = get_settings()
     setup_logging(settings.log_level)
 
-    app = FastAPI()
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        yield
+        app.state.db.close()
+
+    app = FastAPI(lifespan=lifespan)
     conn = get_connection(settings.db_path)
     apply_schema(conn)
 
@@ -80,5 +87,8 @@ def create_app() -> FastAPI:
     return app
 
 
-app = create_app()
+if os.getenv("APP_DISABLE_AUTOCREATE") == "1":
+    app = FastAPI()
+else:
+    app = create_app()
 

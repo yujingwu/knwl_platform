@@ -19,9 +19,9 @@ def _validate_document(doc: DocumentIn, request: Request) -> None:
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=IngestResponse)
 def ingest_document(
-    tenantId: str = Depends(require_tenant),
     payload: DocumentIn,
     request: Request,
+    tenantId: str = Depends(require_tenant),
 ) -> IngestResponse:
     _validate_document(payload, request)
     conn = request.app.state.db

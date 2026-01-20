@@ -8,14 +8,13 @@ router = APIRouter(
     prefix="/api/v1/tenants/{tenantId}/documents/search", tags=["search"]
 )
 
-
 @router.get("", response_model=SearchResponse)
 def search_documents(
-    tenantId: str = Depends(require_tenant),
+    request: Request,
     q: str = Query(..., alias="q"),
     limit: int = Query(10, ge=1, le=50),
     offset: int = Query(0, ge=0),
-    request: Request,
+    tenantId: str = Depends(require_tenant),
 ) -> SearchResponse:
     if not q.strip():
         raise HTTPException(status_code=400, detail="Query cannot be blank")
