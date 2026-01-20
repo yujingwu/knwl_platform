@@ -5,7 +5,8 @@
 - Missing/invalid key -> `401`
 - Valid key but tenant not authorized -> `403`
 - Tenant is `{tenantId}` path param; must be allowed for key.
-- Config via env `API_KEYS_JSON` mapping key -> list of tenants.
+- Config via env `API_KEYS_JSON` mapping key -> list of tenant IDs.
+  - Example: {"key_admin":["t1","t2"],"key_t1":["t1"]}
 
 ---
 
@@ -24,6 +25,11 @@ Request body:
   "tags": ["tag1", "tag2"]
 }
 ```
+Behavior:
+- Validate title non-empty, content non-empty; max sizes via env (see config)
+- Store document in SQLite
+-	Update FTS index
+-	Return created doc id
 
 Response `201`:
 ```json
@@ -53,6 +59,12 @@ Query params:
 - `limit` (optional): default 10, max 50
 - `offset` (optional): default 0
 
+Behavior:
+-	Text-based search via SQLite FTS5 MATCH
+-	Rank results by relevance (FTS5 bm25)
+-	Return stable pagination by limit/offset
+-	Only search within the tenantId
+
 Response `200`:
 ```json
 {
@@ -75,8 +87,10 @@ Response `200`:
 ```
 
 Notes:
-- Results must be tenant-scoped.
-- Rank by FTS5 relevance (bm25). API `score` must be **higher = better**.
+- Results must be **tenant-scoped** (never return documents from other tenants).
+- `total` must be included in the response and can be computed via `COUNT(*)` on the same `MATCH` query (acceptable for the 10K-doc target).
+- `snippet` should be generated using SQLite FTS5 `snippet()` (highlighting is optional, but it must be a short excerpt relevant to the match).
+- Rank by FTS5 relevance (`bm25`). API `score` must be **higher = better** (transform if needed).
 
 Errors:
 - `400` if q missing/blank
@@ -87,6 +101,11 @@ Errors:
 
 ## 3) Health
 **GET** `/api/v1/health`
+
+Purpose: **Health check endpoint for load balancers** (must be lightweight and return `200` quickly).
+
+Notes:
+- Should not perform expensive checks; optional DB connectivity check is OK if it is fast.
 
 Auth: not required (recommended for ops simplicity).
 
