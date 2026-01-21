@@ -1,0 +1,20 @@
+aws_region         = "us-west-2"
+project_name       = "knwl-platform"
+container_image    = "123456789012.dkr.ecr.us-west-2.amazonaws.com/knwl-platform:latest"
+api_keys_json      = "{\"key_admin\":[\"t1\"],\"key_t1\":[\"t1\"]}"
+db_username        = "knwl_admin"
+db_password        = "replace-with-strong-password"
+
+desired_count      = 1
+task_cpu           = 256
+task_memory        = 512
+log_level          = "INFO"
+log_retention_days = 14
+
+autoscale_min         = 1
+autoscale_max         = 3
+autoscale_cpu_target  = 60
+autoscale_memory_target = 70
+
+alarm_actions = []
+

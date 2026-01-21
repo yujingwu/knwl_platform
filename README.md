@@ -1,5 +1,10 @@
 # Simplified Knowledge Indexing Service (Part 2)
 
+## Project structure (by part)
+- Part 2 (Core Implementation): app/, tests/, scripts/, docs/
+- Part 3 (Infrastructure as Code): infra/terraform/ + infra/README_IAC.md
+- Part 3 (Containerization artifact): Dockerfile + .dockerignore (builds the Part 2 service image)
+
 ## Local setup
 1) Create and activate a virtualenv
    - `python3 -m venv knwl_pf`
