@@ -6,6 +6,7 @@ This directory contains Terraform to deploy the **Part 2 FastAPI service** to AW
 Because I do **not** have an AWS account/credentials in this environment, I did **not** run `terraform plan` or `terraform apply`.
 
 I **did** run locally (no AWS required):
+- `terraform init`
 - `terraform fmt -recursive`
 - `terraform validate`
 
