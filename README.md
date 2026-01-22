@@ -1,6 +1,7 @@
 # Simplified Knowledge Indexing Service (Part 2)
 
 ## Project structure (by part)
+- Part 1 (Scalable System Design): Part1_KnwlPft_scalable_Design_doc.md
 - Part 2 (Core Implementation): app/, tests/, scripts/, docs/
 - Part 3 (Infrastructure as Code): infra/terraform/ + infra/README_IAC.md
 - Part 3 (Containerization artifact): Dockerfile + .dockerignore (builds the Part 2 service image)
@@ -48,11 +49,13 @@ curl "http://localhost:8000/api/v1/metrics"
 
 ## Testing
 - Run tests: `pytest`
+  - Note: this repo includes pytest.ini to ensure the repo root is on PYTHONPATH so app/ imports work consistently across environments.
 - Run coverage: `pytest --cov=app --cov-report=term-missing`
-- Ensure coverage > 70%
+  - Ensure coverage > 70%
 
 ## Benchmark
-- Run: `python scripts/benchmark.py --queries 500 --threshold-ms 100`
-- Uses in-process `TestClient` against the FastAPI app.
-- Output: prints p50/p95 latencies in ms; exits non-zero if p95 exceeds threshold.
+- Run from repo root: `python -m scripts.benchmark.py --queries 500 --threshold-ms 100`
+  - Uses in-process `TestClient` against the FastAPI app.
+  - Output: prints p50/p95 latencies in ms; exits non-zero if p95 exceeds threshold.
+- Alternative if your environment has import path issues: `PYTHONPATH=. python scripts/benchmark.py --queries 500 --threshold-ms 100`
 
