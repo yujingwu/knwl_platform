@@ -92,3 +92,21 @@ curl "http://localhost:8000/api/v1/metrics"
   - Output: prints p50/p95 latencies in ms; exits non-zero if p95 exceeds threshold.
 - Alternative if your environment has import path issues: `PYTHONPATH=. python scripts/benchmark.py --queries 500 --threshold-ms 100`
 
+## Assumptions
+- Part 2 is a simplified local implementation using SQLite + FTS5 (embedded DB) and API-key auth for tenant scoping.
+- “Semantic search” is addressed in the Part 1 design (embeddings/vector index). Part 2 focuses on text search via FTS5.
+- Part 3 provides Terraform + documentation for an ECS-style deployment; actual cloud apply is optional for this take-home (no AWS account required to validate `terraform fmt/validate`).
+
+## What I would do differently with more time
+- Add tenant-scoped audit logging (append-only) with a clear retention policy and query/reporting support.
+- Add ingestion idempotency keys + a persistent idempotency store to prevent duplicate submits across retries.
+- Support a production datastore (e.g., Postgres) behind a DB abstraction so Part 3 RDS wiring is “real,” not just documented.
+- Improve semantic retrieval quality (vector search + reranking) and add offline evaluation for relevance.
+- Add multi-region DR and a replayable indexing pipeline for stronger HA/fault tolerance.
+
+## Time spent
+- Part 1 (System design): ~3 hours
+- Part 2 (Core implementation + tests + benchmark): ~6 hours
+- Part 3 (IaC + deployment documentation): ~6 hours
+- Documentation polish (README/API.md/DECISIONS.md): ~3 hours
+Total: ~18 hours

@@ -436,6 +436,7 @@ Goal: produce a **tamper-evident, append-only** record of security-relevant and 
 - Index replicated; shard/replica strategy; rebuild/backfill support
 - Timeouts + circuit breakers around embedding/index calls
 - Degraded mode: lexical-only search if embedding service is unavailable
+- Add multi-region DR and a replayable indexing pipeline for stronger HA/fault tolerance.
 
 ---
 
