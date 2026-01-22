@@ -109,4 +109,5 @@ curl "http://localhost:8000/api/v1/metrics"
 - Part 2 (Core implementation + tests + benchmark): ~6 hours
 - Part 3 (IaC + deployment documentation): ~6 hours
 - Documentation polish & verification (README/API.md/DECISIONS.md): ~2 hours
+
 Total: ~18 hours
