@@ -1,0 +1,14 @@
+**/__pycache__/
+**/*.pyc
+
+.git/
+.gitignore
+.DS_Store
+
+knwl_pf/
+.venv/
+data/
+
+infra/terraform/.terraform/
+infra/terraform/terraform.tfstate*
+infra/terraform/terraform.tfvars
