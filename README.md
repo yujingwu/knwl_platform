@@ -6,6 +6,15 @@
 - Part 3 (Infrastructure as Code): infra/terraform/ + infra/README_IAC.md
 - Part 3 (Containerization artifact): Dockerfile + .dockerignore (builds the Part 2 service image)
 
+## Execution status for Part 2 (what I actually ran)
+I was able to successfully 
+- set up local environment
+- start the server
+- test 4 endpoints using curl and Swagger UI
+- finish all coverage and benchmark tests
+- verify OPENAPI JSON works
+
+
 ## Local setup
 1) Create and activate a virtualenv
    - `python3 -m venv knwl_pf`
