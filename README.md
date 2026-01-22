@@ -2,7 +2,7 @@
 
 ## Project structure (by part)
 - Part 1 (Scalable System Design): Part1_KnwlPft_scalable_Design_doc.md
-- Part 2 (Core Implementation): app/, tests/, scripts/, docs/
+- Part 2 (Core Implementation - MVP): README.md, app/, tests/, scripts/, docs/
 - Part 3 (Infrastructure as Code): infra/terraform/ + infra/README_IAC.md 
 - Part 3 (Containerization artifact): Dockerfile + .dockerignore (optional local container run; required for ECS)
 
