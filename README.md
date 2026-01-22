@@ -6,6 +6,8 @@
 - Part 3 (Infrastructure as Code): infra/terraform/ + infra/README_IAC.md 
 - Part 3 (Containerization artifact): Dockerfile + .dockerignore (optional local container run; required for ECS)
 
+The system Design for Part 2 MVP is docs/DESING.md 
+
 ## Execution status for Part 2 (what I actually ran)
 I was able to successfully 
 - set up the local environment
