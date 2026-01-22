@@ -105,8 +105,8 @@ curl "http://localhost:8000/api/v1/metrics"
 - Add multi-region DR and a replayable indexing pipeline for stronger HA/fault tolerance.
 
 ## Time spent
-- Part 1 (System design): ~3 hours
+- Part 1 (System design): ~4 hours
 - Part 2 (Core implementation + tests + benchmark): ~6 hours
 - Part 3 (IaC + deployment documentation): ~6 hours
-- Documentation polish (README/API.md/DECISIONS.md): ~3 hours
+- Documentation polish & verification (README/API.md/DECISIONS.md): ~2 hours
 Total: ~18 hours
