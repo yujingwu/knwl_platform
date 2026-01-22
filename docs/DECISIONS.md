@@ -1,6 +1,6 @@
 # Step 2 DECISIONS
 
-This file captures deliberate implementation choices for the Part 2 simplified service. Update this file if behavior changes or if you deviate from `docs/SPEC.md` / `docs/API.md`.
+This file captures deliberate implementation choices for the Part 2 simplified service. Update this file if behavior changes or the requirement deviates from `docs/SPEC.md` / `docs/API.md`.
 
 ## Decisions (current)
 1) **Language/Framework**: Python + FastAPI + Pydantic  
