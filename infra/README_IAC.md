@@ -19,9 +19,13 @@ A reviewer can provide AWS credentials and run `terraform init/plan/apply` as de
 - **Part 3** provides production-oriented cloud infrastructure to deploy the same service as a container.
 - **RDS Postgres is provisioned** to meet the “RDS or DynamoDB” requirement and represent a production datastore. The current container still uses SQLite via `DB_PATH` unless the app is extended to use Postgres.
 
-Containerization artifacts:
-- `Dockerfile` at repo root builds the image used by ECS.
-- IaC is under `infra/terraform/`.
+Containerization artifacts (ECS packaging):
+- `Dockerfile` and `.dockerignore` at repo root build the container image consumed by the ECS task definition.
+- Docker is **not required** to run Part 2 locally (venv + SQLite is the primary dev workflow).
+- Docker is **required** only if you are building/pushing an image for ECS (see Deployment guide 0 below).
+- For an optional local container smoke test, see **README.md → “Containerization (Docker)”**.
+
+IaC code is under `infra/terraform/`.
 
 ---
 
@@ -80,7 +84,13 @@ aws sts get-caller-identity
 ## Deployment guide
 
 ### 0) Build and push the container image (ECR example)
-You must push an image and set `container_image` to its URI.
+To deploy to ECS, you must build a container image (using the repo-root `Dockerfile`) and push it to a registry (ECR shown here). Then set `container_image` to that image URI.
+
+Prerequisites for this step:
+- Docker installed/running (Docker Desktop on macOS)
+- AWS account + credentials configured locally
+- AWS CLI installed (`aws`)
+- Permissions to create/push to ECR
 
 ```bash
 AWS_REGION=us-west-2
