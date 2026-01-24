@@ -4,6 +4,13 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Dict, Set
 
+# Default configuration constants
+DEFAULT_DB_PATH = "./data/app.db"
+DEFAULT_MAX_TITLE_LEN = 200
+DEFAULT_MAX_CONTENT_LEN = 200000
+DEFAULT_MAX_TAGS = 20
+DEFAULT_LOG_LEVEL = "INFO"
+
 
 def _get_env(name: str, default: str | None = None) -> str | None:
     value = os.getenv(name)
@@ -36,12 +43,12 @@ class Settings:
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    db_path = _get_env("DB_PATH", "./data/app.db")
+    db_path = _get_env("DB_PATH", DEFAULT_DB_PATH)
     api_keys_json = _get_env("API_KEYS_JSON")
-    max_title_len = int(_get_env("MAX_TITLE_LEN", "200"))
-    max_content_len = int(_get_env("MAX_CONTENT_LEN", "200000"))
-    max_tags = int(_get_env("MAX_TAGS", "20"))
-    log_level = _get_env("LOG_LEVEL", "INFO")
+    max_title_len = int(_get_env("MAX_TITLE_LEN", str(DEFAULT_MAX_TITLE_LEN)))
+    max_content_len = int(_get_env("MAX_CONTENT_LEN", str(DEFAULT_MAX_CONTENT_LEN)))
+    max_tags = int(_get_env("MAX_TAGS", str(DEFAULT_MAX_TAGS)))
+    log_level = _get_env("LOG_LEVEL", DEFAULT_LOG_LEVEL)
 
     return Settings(
         db_path=db_path,
