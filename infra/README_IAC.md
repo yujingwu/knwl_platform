@@ -30,10 +30,14 @@ IaC code is under `infra/terraform/`.
 ---
 
 ## What this deploys (high level)
+Traffic Flow
+```
+Internet → API Gateway (public) → VPC Link → Internal ALB (private) → ECS Tasks (public)
+```
 Terraform under `infra/terraform/` creates:
 
 - Networking:
-  - VPC + **public subnets** (simplest networking for a take-home)
+  - VPC + **public subnets** (for ECS tasks and VPC Link) + **private subnets** (for ALB)
   - Internet Gateway + route tables
 
 - Compute:
@@ -41,9 +45,10 @@ Terraform under `infra/terraform/` creates:
   - ECS Fargate task definition + service
 
 - Traffic ingress:
-  - Internet-facing **ALB** (listener port 80)
+  - **Internal ALB** (private subnets, only accessible via API Gateway VPC Link)
   - Target group health check: `GET /api/v1/health`
-  - **API Gateway HTTP API** → **VPC Link** → ALB integration
+  - **API Gateway HTTP API** → **VPC Link** → Internal ALB integration
+  - **Security**: ALB security group restricts ingress to API Gateway VPC Link only
 
 - Data:
   - **RDS Postgres** instance (minimal sizing) + subnet group + security group
@@ -136,13 +141,65 @@ terraform apply
 
 ### 3) Verify deployment
 Terraform outputs should include:
-- API Gateway base URL (recommended entry point)
-- ALB DNS name (direct ALB access)
+- API Gateway base URL (recommended entry point - use this for all access)
+- ALB DNS name (internal only, not directly accessible from internet)
+
+**Note**: The ALB is internal and can only be accessed via API Gateway. Direct access to the ALB DNS name will not work from outside the VPC.
 
 Verify health via API Gateway URL:
 ```bash
 curl -i <APIGW_URL>/api/v1/health
 ```
+
+---
+
+## Security Architecture
+
+### Network Security
+- **ALB**: Internal load balancer in private subnets
+  - Security group restricts ingress to API Gateway VPC Link only
+  - Not directly accessible from the internet
+- **ECS Tasks**: In public subnets for outbound internet access (image pulls, API calls)
+  - Security group restricts ingress to ALB security group only
+  - Not directly accessible from the internet
+- **API Gateway**: Public endpoint (AWS-managed)
+  - Routes traffic via VPC Link to internal ALB
+  - All traffic must go through API Gateway
+
+
+This architecture ensures:
+- ALB cannot be directly accessed from the internet
+- All traffic is routed through API Gateway (enabling rate limiting, API keys, etc.)
+- Defense in depth: multiple layers of security (API Gateway + VPC Link + Security Groups)
+
+### ECS Tasks in Public Subnets: Intentional Trade-off
+
+**Current Design**: ECS tasks are deployed in public subnets with public IPs assigned.
+
+**Why Public Subnets?**
+- **Simplicity**: No NAT Gateway setup required (saves ~$32/month + complexity)
+- **Cost-effective**: Avoids NAT Gateway charges for a take-home project
+- **Sufficient security**: Security groups prevent inbound internet access (only ALB can reach tasks)
+- **Outbound access**: Tasks can pull container images from ECR and send logs to CloudWatch
+
+**Trade-offs:**
+- ✅ **Pros**: Simple, cost-effective, works well for MVP/take-home projects
+- ⚠️ **Cons**: Tasks have public IPs (though not accessible due to security groups), less "textbook" architecture
+
+**Production Alternative:**
+For production workloads, consider moving ECS tasks to private subnets with NAT Gateway:
+- Tasks would have private IPs only (no public IPs)
+- More secure network isolation
+- Additional cost: ~$32/month per NAT Gateway + data transfer charges
+- Requires NAT Gateway setup in Terraform
+
+**Security Note:**
+While tasks have public IPs, they are **not accessible from the internet** because:
+- Security group only allows ingress from ALB security group
+- No inbound rules allowing `0.0.0.0/0`
+- Tasks can only be reached via: Internet → API Gateway → VPC Link → ALB → Tasks
+
+This is an acceptable trade-off for a take-home project where simplicity and cost-effectiveness outweigh the added complexity of NAT Gateway setup.
 
 ---
 

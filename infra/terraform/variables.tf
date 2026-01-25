@@ -21,6 +21,12 @@ variable "public_subnet_cidrs" {
   default     = ["10.10.1.0/24", "10.10.2.0/24"]
 }
 
+variable "private_subnet_cidrs" {
+  type        = list(string)
+  description = "Private subnet CIDRs (at least 2)"
+  default     = ["10.10.10.0/24", "10.10.11.0/24"]
+}
+
 variable "container_image" {
   type        = string
   description = "Container image URI (e.g., ECR)"

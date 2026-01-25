@@ -1,5 +1,6 @@
 output "alb_dns_name" {
-  value = aws_lb.app.dns_name
+  value       = aws_lb.app.dns_name
+  description = "Internal ALB DNS name (only accessible via API Gateway VPC Link)"
 }
 
 output "apigw_url" {

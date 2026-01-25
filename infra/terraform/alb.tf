@@ -1,13 +1,14 @@
 resource "aws_security_group" "alb" {
   name        = "${var.project_name}-alb-sg"
-  description = "ALB SG"
+  description = "ALB SG - Internal ALB, only accessible via API Gateway"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.apigw_vpc_link.id]
+    description     = "Allow traffic only from API Gateway VPC Link"
   }
 
   egress {
@@ -21,8 +22,9 @@ resource "aws_security_group" "alb" {
 resource "aws_lb" "app" {
   name               = "${var.project_name}-alb"
   load_balancer_type = "application"
+  internal           = true
   security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.public[*].id
+  subnets            = aws_subnet.private[*].id
 }
 
 resource "aws_lb_target_group" "app" {
