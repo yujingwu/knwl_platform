@@ -430,6 +430,8 @@ Goal: produce a **tamper-evident, append-only** record of security-relevant and 
 ---
 
 ## 6) High Availability and Fault Tolerance
+
+### General Ideas
 - Stateless services deployed across multiple instances/zones
 - Queue-based async pipeline with retries + DLQ
 - Metadata store replicated; backups + restore procedures
@@ -437,6 +439,41 @@ Goal: produce a **tamper-evident, append-only** record of security-relevant and 
 - Timeouts + circuit breakers around embedding/index calls
 - Degraded mode: lexical-only search if embedding service is unavailable
 - Add multi-region DR and a replayable indexing pipeline for stronger HA/fault tolerance.
+
+### Fault Tolerance for Ingestion/Indexing (idempotency & deduplication)
+
+Because the ingestion → indexing pipeline is **at-least-once** (HTTP retries, queue redelivery, worker retries), every stage is designed to be **safe to repeat** and to produce **exactly-once effects**.
+
+**Stable identity (dedupe key)**
+- Use a single canonical dedupe key: **`(tenant_id, doc_id, content_version)`**.
+- `doc_id` is stable per document (allocated in `documents:init`).
+- `content_version` increments when a new upload replaces content for the same `doc_id`.
+
+**Finalize is retry-safe (transactional outbox / equivalent)**
+- `documents:finalize` performs a single transaction:
+  - Update metadata to `STORED`
+  - Insert an outbox row for indexing with a **unique constraint** on `(tenant_id, doc_id, content_version, event_type='INDEX')`
+  - Emit audit event(s) (also idempotent via unique keys if needed)
+- If finalize is retried, the unique constraint prevents duplicate job creation.
+
+**Queue publishing is retry-safe**
+- Publisher reads outbox and writes to the queue with message key = `tenant_id|doc_id` (ordering per doc).
+- Message payload includes `tenant_id`, `doc_id`, `content_version`, and object location (e.g., `object_key`, optional `etag/checksum`).
+- Producer retries are allowed; duplicates are tolerated because consumers dedupe on the canonical key.
+
+**Workers are idempotent**
+- Indexing workers maintain a durable `job_state` store keyed by the canonical dedupe key `(tenant_id, doc_id, content_version)`:
+  - `RECEIVED → RUNNING → DONE` (and `FAILED` with retry count)
+- On message receipt: if the key is already `DONE`, the worker **acks and skips**.
+
+**Index writes are idempotent**
+- Chunk IDs are deterministic: `chunk_id = hash(tenant_id, doc_id, content_version, chunk_index)`.
+- Index writes use upserts (bulk indexing). Retrying the same bulk request converges to the same final state.
+- Re-indexing on new `content_version` either:
+  - keeps old versions but filters by latest version at query time, or
+  - deletes old version chunks via `(tenant_id, doc_id, old_version)` (also retry-safe).
+
+This design ensures that failures/retries (client, ingestion service, publisher, queue, workers, index cluster) do not cause corruption—at worst they cause bounded duplicate work, which is controlled by dedupe keys, unique constraints, and job state.
 
 ---
 
