@@ -251,7 +251,7 @@ Clients (UI/SDK)
                 |               | (5) merge + rerank + paginate
                 |               v
 +---------------+------------------------------+
-| Search API Service                           |
+| Search API Service - continue                |
 | (hybrid merge/rerank; enforce tenant filter) |
 +---------------+------------------------------+
                 |
