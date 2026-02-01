@@ -13,6 +13,9 @@ This spec is the single source of truth for **Part 2: Core Implementation** of t
 - Tests: unit + integration, **>70% coverage**
 - Performance: search **p95 < 100ms** at **10,000 docs** (include benchmark script)
 - OpenAPI/Swagger available from FastAPI
+  - Swagger UI: `GET /docs`
+  - OpenAPI JSON: `GET /openapi.json`
+  - (Optional) ReDoc: `GET /redoc`
 - Clear setup instructions + curl examples in `README.md`
 
 ## Non-goals
@@ -231,6 +234,7 @@ The repository `README.md` must include:
 - Set `API_KEYS_JSON` (include a working example)
 - Initialize/create the SQLite DB (if needed)
 - Run the server (command + expected port)
+- API docs links: `/docs` (Swagger UI) and `/openapi.json` (OpenAPI spec)
 
 ### Example usage (curl)
 - Ingest a document (include headers + JSON body)
